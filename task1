@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Language Translation and FAQ Chatbot</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #eef2f7;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 850px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px #ccc;
+}
+
+h1 {
+    text-align: center;
+    color: #263b70;
+}
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin: 25px 0;
+}
+
+button {
+    padding: 12px 18px;
+    background: #3157a4;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #193b80;
+}
+
+.tabs button {
+    flex: 1;
+}
+
+.task {
+    display: none;
+}
+
+.task.active {
+    display: block;
+}
+
+textarea, select, input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.result {
+    background: #eaf3ff;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 6px;
+    min-height: 50px;
+    white-space: pre-wrap;
+}
+
+label {
+    font-weight: bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Language Translation & FAQ Chatbot</h1>
+
+<div class="tabs">
+    <button onclick="showTask('translation')">
+        Language Translation
+    </button>
+
+    <button onclick="showTask('faq')">
+        FAQ Chatbot
+    </button>
+</div>
+
+<!-- TASK 1: LANGUAGE TRANSLATION -->
+
+<div id="translation" class="task active">
+
+<h2>Task 1: Language Translation Tool</h2>
+
+<p>Enter text and select languages to translate.</p>
+
+<label>Enter Your Text:</label>
+
+<textarea id="inputText"
+placeholder="Enter text here..."></textarea>
+
+<label>Source Language:</label>
+
+<select id="source">
+    <option value="en">English</option>
+    <option value="hi">Hindi</option>
+    <option value="kn">Kannada</option>
+    <option value="ta">Tamil</option>
+    <option value="te">Telugu</option>
+</select>
+
+<label>Target Language:</label>
+
+<select id="target">
+    <option value="kn">Kannada</option>
+    <option value="en">English</option>
+    <option value="hi">Hindi</option>
+    <option value="ta">Tamil</option>
+    <option value="te">Telugu</option>
+</select>
+
+<button onclick="translateText()">Translate Text</button>
+
+<h3>Translated Result:</h3>
+
+<div class="result" id="translationResult">
+    Translation will appear here.
+</div>
+
+</div>
+
+
+<!-- TASK 2: FAQ CHATBOT -->
+
+<div id="faq" class="task">
+
+<h2>Task 2: FAQ Chatbot</h2>
+
+<p>Ask a question to get an answer from the chatbot.</p>
+
+<label>Enter Your Question:</label>
+
+<input type="text" id="question"
+placeholder="Ask something...">
+
+<button onclick="getAnswer()">Send Question</button>
+
+<h3>Chatbot Response:</h3>
+
+<div class="result" id="answer">
+    Hello! Welcome to the FAQ chatbot.
+    Ask me a question.
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+// SWITCH BETWEEN TASKS
+
+function showTask(taskName) {
+
+    document.querySelectorAll(".task").forEach(task => {
+        task.classList.remove("active");
+    });
+
+    document.getElementById(taskName).classList.add("active");
+}
+
+
+// TASK 1: LANGUAGE TRANSLATION
+
+async function translateText() {
+
+    let text = document.getElementById("inputText").value;
+    let source = document.getElementById("source").value;
+    let target = document.getElementById("target").value;
+
+    let result = document.getElementById("translationResult");
+
+    if (text.trim() === "") {
+        result.innerText = "Please enter some text.";
+        return;
+    }
+
+    if (source === target) {
+        result.innerText = text;
+        return;
+    }
+
+    result.innerText = "Translating...";
+
+    try {
+
+        let url = "https://api.mymemory.translated.net/get?q="
+            + encodeURIComponent(text)
+            + "&langpair=" + source + "|" + target;
+
+        let response = await fetch(url);
+        let data = await response.json();
+
+        if (data.responseStatus === 200) {
+            result.innerText =
+                data.responseData.translatedText;
+        } else {
+            result.innerText = "Translation service could not process this request.";
+        }
+
+    } catch (error) {
+
+        result.innerText =
+            "Unable to connect. Please check your internet connection.";
+
+    }
+}
+
+
+// TASK 2: FAQ CHATBOT
+
+const faqs = [
+
+    {
+        question: "What is your name",
+        answer: "I am a simple FAQ chatbot."
+    },
+
+    {
+        question: "What is artificial intelligence",
+        answer: "Artificial Intelligence is the ability of machines to perform tasks that normally require human intelligence."
+    },
+
+    {
+        question: "What is machine learning",
+        answer: "Machine Learning is a branch of AI that allows computers to learn from data."
+    },
+
+    {
+        question: "What is Python",
+        answer: "Python is a simple and popular programming language."
+    },
+
+    {
+        question: "What is chatbot",
+        answer: "A chatbot is a computer program that communicates with users and answers their questions."
+    },
+
+    {
+        question: "How are you",
+        answer: "I am doing great! How can I help you?"
+    },
+
+    {
+        question: "Thank you",
+        answer: "You're welcome! Have a nice day."
+    }
+
+];
+
+
+// TEXT PREPROCESSING
+
+function preprocess(text) {
+
+    return text.toLowerCase()
+        .replace(/[^\w\s]/g, "")
+        .split(/\s+/)
+        .filter(word => word.length > 0);
+
+}
+
+
+// SIMILARITY MATCHING
+
+function similarity(text1, text2) {
+
+    let words1 = new Set(preprocess(text1));
+    let words2 = new Set(preprocess(text2));
+
+    let common = [...words1].filter(word =>
+        words2.has(word)
+    ).length;
+
+    let total = new Set([...words1, ...words2]).size;
+
+    return total === 0 ? 0 : common / total;
+
+}
+
+
+// GET CHATBOT ANSWER
+
+function getAnswer() {
+
+    let userQuestion =
+        document.getElementById("question").value;
+
+    let output =
+        document.getElementById("answer");
+
+    if (userQuestion.trim() === "") {
+
+        output.innerText = "Please enter a question.";
+        return;
+
+    }
+
+    let bestMatch = null;
+    let highestScore = 0;
+
+    faqs.forEach(faq => {
+
+        let score = similarity(
+            userQuestion,
+            faq.question
+        );
+
+        if (score > highestScore) {
+
+            highestScore = score;
+            bestMatch = faq;
+
+        }
+
+    });
+
+    if (bestMatch && highestScore >= 0.25) {
+
+        output.innerText = bestMatch.answer;
+
+    } else {
+
+        output.innerText =
+            "Sorry, I don't know the answer. Please try another question.";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
